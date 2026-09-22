@@ -1,0 +1,23 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: incident-api
+  namespace: cloudops
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: incident-api
+  template:
+    metadata:
+      labels:
+        app: incident-api
+    spec:
+      containers:
+        - name: incident-api
+          image: 270254976698.dkr.ecr.ap-south-1.amazonaws.com/cloudops-incident-api:latest
+          ports:
+            - containerPort: 5000
+          env:
+            - name: NOTIFICATION_SERVICE_URL
+              value: "http://notification-service:5001"

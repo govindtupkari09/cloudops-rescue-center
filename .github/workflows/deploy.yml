@@ -1,0 +1,90 @@
+name: CloudOps Rescue Center CI/CD
+
+on:
+  push:
+    branches:
+      - main
+
+env:
+  AWS_REGION: ap-south-1
+  AWS_ACCOUNT_ID: "270254976698"
+  ECS_CLUSTER: cloudops-rescue-cluster
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Login to Amazon ECR
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Build and push Incident API
+        run: |
+          IMAGE=$AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/cloudops-incident-api:${{ github.sha }}
+          LATEST=$AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/cloudops-incident-api:latest
+          docker build -t $IMAGE ./incident-api
+          docker tag $IMAGE $LATEST
+          docker push $IMAGE
+          docker push $LATEST
+
+      - name: Build and push Notification Service
+        run: |
+          IMAGE=$AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/cloudops-notification-service:${{ github.sha }}
+          LATEST=$AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/cloudops-notification-service:latest
+          docker build -t $IMAGE ./notification-service
+          docker tag $IMAGE $LATEST
+          docker push $IMAGE
+          docker push $LATEST
+
+      - name: Build and push Frontend
+        run: |
+          IMAGE=$AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/cloudops-frontend:${{ github.sha }}
+          LATEST=$AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/cloudops-frontend:latest
+          docker build -t $IMAGE ./frontend
+          docker tag $IMAGE $LATEST
+          docker push $IMAGE
+          docker push $LATEST
+
+      - name: Deploy Incident API to ECS
+        run: |
+          aws ecs update-service \
+            --cluster $ECS_CLUSTER \
+            --service cloudops-incident-api \
+            --force-new-deployment \
+            --region $AWS_REGION
+
+      - name: Deploy Notification Service to ECS
+        run: |
+          aws ecs update-service \
+            --cluster $ECS_CLUSTER \
+            --service cloudops-notification-service \
+            --force-new-deployment \
+            --region $AWS_REGION
+
+      - name: Deploy Frontend to ECS
+        run: |
+          aws ecs update-service \
+            --cluster $ECS_CLUSTER \
+            --service cloudops-frontend-service \
+            --force-new-deployment \
+            --region $AWS_REGION
+
+      - name: Wait for ECS services
+        run: |
+          aws ecs wait services-stable \
+            --cluster $ECS_CLUSTER \
+            --services cloudops-incident-api cloudops-notification-service cloudops-frontend-service \
+            --region $AWS_REGION

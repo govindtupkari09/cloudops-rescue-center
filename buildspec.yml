@@ -1,0 +1,36 @@
+version: 0.2
+
+phases:
+  pre_build:
+    commands:
+      - echo Logging in to Amazon ECR...
+      - AWS_ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
+      - AWS_REGION=ap-south-1
+      - ECR_BASE=$AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com
+      - aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $ECR_BASE
+
+  build:
+    commands:
+      - echo Building Incident API image...
+      - docker build -t $ECR_BASE/cloudops-incident-api:latest ./incident-api
+      - echo Building Notification Service image...
+      - docker build -t $ECR_BASE/cloudops-notification-service:latest ./notification-service
+      - echo Building Frontend image...
+      - docker build -t $ECR_BASE/cloudops-frontend:latest ./frontend
+
+  post_build:
+    commands:
+      - echo Pushing images to ECR...
+      - docker push $ECR_BASE/cloudops-incident-api:latest
+      - docker push $ECR_BASE/cloudops-notification-service:latest
+      - docker push $ECR_BASE/cloudops-frontend:latest
+      - echo Creating ECS deployment definitions...
+      - printf '[{"name":"incident-api","imageUri":"%s"}]' "$ECR_BASE/cloudops-incident-api:latest" > imagedefinitions-incident.json
+      - printf '[{"name":"notification-service","imageUri":"%s"}]' "$ECR_BASE/cloudops-notification-service:latest" > imagedefinitions-notification.json
+      - printf '[{"name":"frontend","imageUri":"%s"}]' "$ECR_BASE/cloudops-frontend:latest" > imagedefinitions-frontend.json
+
+artifacts:
+  files:
+    - imagedefinitions-incident.json
+    - imagedefinitions-notification.json
+    - imagedefinitions-frontend.json

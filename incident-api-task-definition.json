@@ -1,0 +1,29 @@
+{
+  "family": "cloudops-incident-api-task",
+  "networkMode": "awsvpc",
+  "requiresCompatibilities": [
+    "FARGATE"
+  ],
+  "cpu": "256",
+  "memory": "512",
+  "executionRoleArn": "arn:aws:iam::270254976698:role/ecsTaskExecutionRole",
+  "containerDefinitions": [
+    {
+      "name": "incident-api",
+      "image": "270254976698.dkr.ecr.ap-south-1.amazonaws.com/cloudops-incident-api:latest",
+      "essential": true,
+      "portMappings": [
+        {
+          "containerPort": 5000,
+          "protocol": "tcp"
+        }
+      ],
+      "environment": [
+        {
+          "name": "NOTIFICATION_SERVICE_URL",
+         "value":"http://notification.cloudops.local:5001"
+        }
+      ]
+    }
+  ]
+}

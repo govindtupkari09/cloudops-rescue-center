@@ -1,0 +1,23 @@
+{
+  "family": "cloudops-notification-service-task",
+  "networkMode": "awsvpc",
+  "requiresCompatibilities": ["FARGATE"],
+  "cpu": "256",
+  "memory": "512",
+  "executionRoleArn": "arn:aws:iam::270254976698:role/ecsTaskExecutionRole",
+  "taskRoleArn": "arn:aws:iam::270254976698:role/ecsExecTaskRole",
+  "containerDefinitions": [
+    {
+      "name": "notification-service",
+      "image": "270254976698.dkr.ecr.ap-south-1.amazonaws.com/cloudops-notification-service:latest",
+      "essential": true,
+      "portMappings": [
+        {
+          "containerPort": 5001,
+          "protocol": "tcp"
+        }
+      ]
+    }
+  ]
+}
+

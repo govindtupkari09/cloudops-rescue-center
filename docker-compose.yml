@@ -1,0 +1,17 @@
+services:
+
+  incident-api:
+    build:
+      context: ./incident-api
+    container_name: cloudops-incident-api-compose
+    ports:
+      - "5000:5000"
+    environment:
+      NOTIFICATION_SERVICE_URL: http://notification-service:5001
+
+  notification-service:
+    build:
+      context: ./notification-service
+    container_name: cloudops-notification-service-compose
+    ports:
+      - "5001:5001"

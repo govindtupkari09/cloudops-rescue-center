@@ -1,0 +1,860 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>CloudOps Rescue Center</title>
+
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <div class="app-shell">
+
+        <!-- ================= SIDEBAR ================= -->
+        <aside class="sidebar" id="sidebar">
+
+            <div class="brand">
+                <div class="brand-icon">☁</div>
+
+                <div>
+                    <h1>CLOUDOPS</h1>
+                    <span>RESCUE CENTER</span>
+                </div>
+            </div>
+
+
+            <nav class="nav-menu">
+
+                <button class="nav-item active" data-section="dashboard">
+                    <span>▦</span>
+                    Dashboard
+                </button>
+
+                <button class="nav-item" data-section="incidents">
+                    <span>⚠</span>
+                    Incidents
+                </button>
+
+                <button class="nav-item" id="sidebar-create">
+                    <span>＋</span>
+                    Create Incident
+                </button>
+
+                <button class="nav-item" data-section="health">
+                    <span>♥</span>
+                    System Health
+                </button>
+
+            </nav>
+
+
+            <div class="sidebar-footer">
+
+                <div class="api-status">
+
+                    <span class="status-dot" id="sidebar-status-dot"></span>
+
+                    <div>
+                        <strong id="sidebar-api-status">
+                            API Online
+                        </strong>
+
+                        <small id="sidebar-api-message">
+                            Checking connection...
+                        </small>
+                    </div>
+
+                </div>
+
+                <small>
+                    Version 1.0
+                </small>
+
+            </div>
+
+        </aside>
+
+
+        <!-- ================= MAIN CONTENT ================= -->
+
+        <main class="main-content">
+
+            <!-- TOP NAVBAR -->
+
+            <header class="topbar">
+
+                <button
+                    class="menu-toggle"
+                    id="menu-toggle"
+                    aria-label="Toggle menu">
+                    ☰
+                </button>
+
+
+                <div class="page-heading">
+
+                    <h2>
+                        Incident Management Dashboard
+                    </h2>
+
+                    <p>
+                        Monitor, manage and resolve infrastructure incidents
+                    </p>
+
+                </div>
+
+
+                <div class="topbar-actions">
+
+                    <div class="search-box">
+
+                        <span>⌕</span>
+
+                        <input
+                            type="search"
+                            id="search-input"
+                            placeholder="Search incidents..."
+                        >
+
+                    </div>
+
+
+                    <button
+                        class="icon-button"
+                        title="Notifications">
+                        🔔
+                    </button>
+
+
+                    <div class="profile">
+
+                        <div class="avatar">
+                            GO
+                        </div>
+
+                        <div>
+
+                            <strong>
+                                CloudOps Admin
+                            </strong>
+
+                            <small>
+                                Administrator
+                            </small>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </header>
+
+
+            <!-- ================= DASHBOARD ================= -->
+
+            <section class="content">
+
+
+                <!-- SECTION HEADER -->
+
+                <div class="section-header">
+
+                    <div>
+
+                        <span class="eyebrow">
+                            OVERVIEW
+                        </span>
+
+                        <h3>
+                            System Overview
+                        </h3>
+
+                    </div>
+
+
+                    <button
+                        class="primary-button"
+                        id="report-button">
+
+                        ＋ Report New Incident
+
+                    </button>
+
+                </div>
+
+
+                <!-- ================= STATISTICS ================= -->
+
+                <div class="stats-grid">
+
+
+                    <article class="stat-card">
+
+                        <div class="stat-icon blue">
+                            ▦
+                        </div>
+
+                        <div>
+
+                            <span>
+                                Total Incidents
+                            </span>
+
+                            <strong id="total-incidents">
+                                0
+                            </strong>
+
+                            <small>
+                                All reported incidents
+                            </small>
+
+                        </div>
+
+                    </article>
+
+
+                    <article class="stat-card">
+
+                        <div class="stat-icon orange">
+                            ⚠
+                        </div>
+
+                        <div>
+
+                            <span>
+                                Open Incidents
+                            </span>
+
+                            <strong id="open-incidents">
+                                0
+                            </strong>
+
+                            <small>
+                                Require attention
+                            </small>
+
+                        </div>
+
+                    </article>
+
+
+                    <article class="stat-card">
+
+                        <div class="stat-icon green">
+                            ✓
+                        </div>
+
+                        <div>
+
+                            <span>
+                                Resolved
+                            </span>
+
+                            <strong id="resolved-incidents">
+                                0
+                            </strong>
+
+                            <small>
+                                Successfully resolved
+                            </small>
+
+                        </div>
+
+                    </article>
+
+
+                    <article class="stat-card">
+
+                        <div class="stat-icon red">
+                            !
+                        </div>
+
+                        <div>
+
+                            <span>
+                                High Severity
+                            </span>
+
+                            <strong id="high-severity">
+                                0
+                            </strong>
+
+                            <small>
+                                Critical attention needed
+                            </small>
+
+                        </div>
+
+                    </article>
+
+
+                </div>
+
+
+                <!-- ================= INCIDENT CATEGORIES ================= -->
+
+                <section class="panel">
+
+                    <div class="section-header compact">
+
+                        <div>
+
+                            <span class="eyebrow">
+                                CATEGORIES
+                            </span>
+
+                            <h3>
+                                Incident Categories
+                            </h3>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="category-grid">
+
+
+                        <!-- Website Down -->
+
+                        <article
+                            class="category-card"
+                            data-category="Website Down">
+
+                            <div class="category-icon">
+                                🌐
+                            </div>
+
+                            <div>
+
+                                <h4>
+                                    Website Down
+                                </h4>
+
+                                <p>
+                                    Website availability issue
+                                </p>
+
+                            </div>
+
+                            <strong id="website-count">
+                                0
+                            </strong>
+
+                            <button class="text-button category-view">
+                                View incidents →
+                            </button>
+
+                        </article>
+
+
+                        <!-- Database Error -->
+
+                        <article
+                            class="category-card"
+                            data-category="Database Error">
+
+                            <div class="category-icon">
+                                ▣
+                            </div>
+
+                            <div>
+
+                                <h4>
+                                    Database Error
+                                </h4>
+
+                                <p>
+                                    Database related issue
+                                </p>
+
+                            </div>
+
+                            <strong id="database-count">
+                                0
+                            </strong>
+
+                            <button class="text-button category-view">
+                                View incidents →
+                            </button>
+
+                        </article>
+
+
+                        <!-- Server Failure -->
+
+                        <article
+                            class="category-card"
+                            data-category="Server Failure">
+
+                            <div class="category-icon">
+                                ▤
+                            </div>
+
+                            <div>
+
+                                <h4>
+                                    Server Failure
+                                </h4>
+
+                                <p>
+                                    Server related issue
+                                </p>
+
+                            </div>
+
+                            <strong id="server-count">
+                                0
+                            </strong>
+
+                            <button class="text-button category-view">
+                                View incidents →
+                            </button>
+
+                        </article>
+
+
+                        <!-- Security Alert -->
+
+                        <article
+                            class="category-card"
+                            data-category="Security Alert">
+
+                            <div class="category-icon">
+                                ⌾
+                            </div>
+
+                            <div>
+
+                                <h4>
+                                    Security Alert
+                                </h4>
+
+                                <p>
+                                    Security related issue
+                                </p>
+
+                            </div>
+
+                            <strong id="security-count">
+                                0
+                            </strong>
+
+                            <button class="text-button category-view">
+                                View incidents →
+                            </button>
+
+                        </article>
+
+
+                    </div>
+
+                </section>
+
+
+                <!-- ================= INCIDENT TABLE ================= -->
+
+                <section class="panel">
+
+                    <div class="section-header compact">
+
+                        <div>
+
+                            <span class="eyebrow">
+                                MONITORING
+                            </span>
+
+                            <h3>
+                                Recent Incidents
+                            </h3>
+
+                        </div>
+
+
+                        <span
+                            class="api-badge"
+                            id="api-badge">
+
+                            ● Checking API
+
+                        </span>
+
+                    </div>
+
+
+                    <div class="table-wrapper">
+
+                        <table>
+
+                            <thead>
+
+                                <tr>
+
+                                    <th>
+                                        Incident ID
+                                    </th>
+
+                                    <th>
+                                        Title
+                                    </th>
+
+                                    <th>
+                                        Severity
+                                    </th>
+
+                                    <th>
+                                        Status
+                                    </th>
+
+                                    <th>
+                                        Created
+                                    </th>
+
+                                    <th>
+                                        Action
+                                    </th>
+
+                                </tr>
+
+                            </thead>
+
+
+                            <tbody id="incident-table-body">
+
+                                <tr>
+
+                                    <td
+                                        colspan="6"
+                                        class="loading">
+
+                                        Loading incidents...
+
+                                    </td>
+
+                                </tr>
+
+                            </tbody>
+
+                        </table>
+
+                    </div>
+
+                </section>
+
+
+                <!-- ================= SYSTEM HEALTH ================= -->
+
+                <section
+                    class="health-panel"
+                    id="health-panel">
+
+                    <div>
+
+                        <span class="eyebrow">
+                            SYSTEM HEALTH
+                        </span>
+
+                        <h3>
+                            Incident API Status
+                        </h3>
+
+                        <p id="health-message">
+                            Checking API connection...
+                        </p>
+
+                    </div>
+
+
+                    <div class="large-health-status">
+
+                        <span
+                            class="status-dot"
+                            id="health-dot">
+                        </span>
+
+                        <strong id="health-status">
+                            CHECKING
+                        </strong>
+
+                    </div>
+
+                </section>
+
+
+            </section>
+
+        </main>
+
+    </div>
+
+
+    <!-- ================= CREATE INCIDENT MODAL ================= -->
+
+    <div
+        class="modal-overlay hidden"
+        id="create-modal">
+
+        <div class="modal">
+
+
+            <div class="modal-header">
+
+                <div>
+
+                    <span class="eyebrow">
+                        NEW INCIDENT
+                    </span>
+
+                    <h3>
+                        Report New Incident
+                    </h3>
+
+                </div>
+
+
+                <button
+                    class="close-button"
+                    data-close="create-modal">
+
+                    ×
+
+                </button>
+
+            </div>
+
+
+            <form id="incident-form">
+
+
+                <label>
+
+                    Incident Title
+
+                    <input
+                        type="text"
+                        id="incident-title"
+                        placeholder="e.g. Server Failure"
+                        required>
+
+                </label>
+
+
+                <label>
+
+                    Severity
+
+                    <select
+                        id="incident-severity"
+                        required>
+
+                        <option value="">
+                            Select severity
+                        </option>
+
+                        <option value="LOW">
+                            LOW
+                        </option>
+
+                        <option value="MEDIUM">
+                            MEDIUM
+                        </option>
+
+                        <option value="HIGH">
+                            HIGH
+                        </option>
+
+                    </select>
+
+                </label>
+
+
+                <label>
+
+                    Description
+
+                    <textarea
+                        id="incident-description"
+                        rows="4"
+                        placeholder="Describe the incident...">
+                    </textarea>
+
+                </label>
+
+
+                <div class="modal-actions">
+
+                    <button
+                        type="button"
+                        class="secondary-button"
+                        data-close="create-modal">
+
+                        Cancel
+
+                    </button>
+
+
+                    <button
+                        type="submit"
+                        class="primary-button">
+
+                        Submit Incident
+
+                    </button>
+
+                </div>
+
+
+            </form>
+
+        </div>
+
+    </div>
+
+
+    <!-- ================= INCIDENT DETAILS MODAL ================= -->
+
+    <div
+        class="modal-overlay hidden"
+        id="details-modal">
+
+        <div class="modal">
+
+
+            <div class="modal-header">
+
+                <div>
+
+                    <span class="eyebrow">
+                        INCIDENT DETAILS
+                    </span>
+
+                    <h3 id="details-title">
+                        Incident
+                    </h3>
+
+                </div>
+
+
+                <button
+                    class="close-button"
+                    data-close="details-modal">
+
+                    ×
+
+                </button>
+
+            </div>
+
+
+            <div class="details-grid">
+
+                <div>
+
+                    <span>
+                        Incident ID
+                    </span>
+
+                    <strong id="details-id">
+                        -
+                    </strong>
+
+                </div>
+
+
+                <div>
+
+                    <span>
+                        Severity
+                    </span>
+
+                    <strong id="details-severity">
+                        -
+                    </strong>
+
+                </div>
+
+
+                <div>
+
+                    <span>
+                        Status
+                    </span>
+
+                    <strong id="details-status">
+                        -
+                    </strong>
+
+                </div>
+
+
+                <div>
+
+                    <span>
+                        Created
+                    </span>
+
+                    <strong id="details-created">
+                        -
+                    </strong>
+
+                </div>
+
+            </div>
+
+
+            <div class="description-box">
+
+                <span>
+                    Description
+                </span>
+
+                <p id="details-description">
+                    No description available.
+                </p>
+
+            </div>
+
+
+            <div class="modal-actions">
+
+                <button
+                    class="secondary-button"
+                    data-close="details-modal">
+
+                    Close
+
+                </button>
+
+
+                <button
+                    class="primary-button"
+                    id="resolve-button">
+
+                    Mark Resolved
+
+                </button>
+
+            </div>
+
+
+        </div>
+
+    </div>
+
+
+    <!-- ================= TOAST NOTIFICATIONS ================= -->
+
+    <div
+        class="toast-container"
+        id="toast-container">
+    </div>
+
+
+    <script src="script.js"></script>
+
+</body>
+</html>

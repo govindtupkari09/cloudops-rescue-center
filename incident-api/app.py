@@ -28,14 +28,22 @@ incidents = [
     {
         "id": "INC001",
         "title": "Website Down",
+        "description": "Main company website is unavailable.",
         "severity": "HIGH",
-        "status": "OPEN"
+        "category": "APPLICATION",
+        "status": "OPEN",
+        "created_by": "System Admin",
+        "created_by_email": "admin@example.com"
     },
     {
         "id": "INC002",
         "title": "Database Error",
+        "description": "Database connection errors reported.",
         "severity": "MEDIUM",
-        "status": "OPEN"
+        "category": "DATABASE",
+        "status": "OPEN",
+        "created_by": "System Admin",
+        "created_by_email": "admin@example.com"
     }
 ]
 
@@ -63,20 +71,65 @@ def get_incident(incident_id):
 @app.route("/incidents", methods=["POST"])
 def create_incident():
 
-    data = request.get_json()
+    data = request.get_json(silent=True)
+
+    if not data:
+        return jsonify({
+            "error": "Request body is required"
+        }), 400
+
+    required_fields = [
+        "title",
+        "severity",
+        "created_by",
+        "created_by_email"
+    ]
+
+    missing_fields = [
+        field for field in required_fields
+        if not data.get(field)
+    ]
+
+    if missing_fields:
+        return jsonify({
+            "error": "Required fields are missing",
+            "missing_fields": missing_fields
+        }), 400
+
+    allowed_severities = ["LOW", "MEDIUM", "HIGH", "CRITICAL"]
+
+    severity = str(data["severity"]).upper()
+
+    if severity not in allowed_severities:
+        return jsonify({
+            "error": "Invalid severity",
+            "allowed_values": allowed_severities
+        }), 400
 
     new_incident = {
         "id": f"INC{len(incidents) + 1:03d}",
-        "title": data["title"],
-        "severity": data["severity"],
-        "status": "OPEN"
+        "title": str(data["title"]).strip(),
+        "description": str(data.get("description", "")).strip(),
+        "severity": severity,
+        "category": str(data.get("category", "OTHER")).strip().upper(),
+        "status": "OPEN",
+        "created_by": str(data["created_by"]).strip(),
+        "created_by_email": str(data["created_by_email"]).strip()
     }
 
     incidents.append(new_incident)
 
     # Send notification to Notification Service
     notification_data = {
-        "message": f"New incident created: {new_incident['id']} - {new_incident['title']}"
+        "message": (
+            f"New incident created: "
+            f"{new_incident['id']} - {new_incident['title']}"
+        ),
+        "incident_id": new_incident["id"],
+        "title": new_incident["title"],
+        "severity": new_incident["severity"],
+        "created_by": new_incident["created_by"],
+        "created_by_email": new_incident["created_by_email"]
     }
 
     try:
@@ -94,9 +147,9 @@ def create_incident():
                 response.read().decode("utf-8")
             )
 
-    except Exception as e:
+    except Exception:
         notification_response = {
-            "error": str(e)
+            "status": "notification failed"
         }
 
     return jsonify({
@@ -109,7 +162,12 @@ def create_incident():
 @app.route("/incidents/<incident_id>", methods=["PUT"])
 def update_incident(incident_id):
 
-    data = request.get_json()
+    data = request.get_json(silent=True)
+
+    if not data:
+        return jsonify({
+            "error": "Request body is required"
+        }), 400
 
     for incident in incidents:
 
@@ -118,8 +176,29 @@ def update_incident(incident_id):
             if "title" in data:
                 incident["title"] = data["title"]
 
+            if "description" in data:
+                incident["description"] = data["description"]
+
             if "severity" in data:
-                incident["severity"] = data["severity"]
+                severity = str(data["severity"]).upper()
+
+                allowed_severities = [
+                    "LOW",
+                    "MEDIUM",
+                    "HIGH",
+                    "CRITICAL"
+                ]
+
+                if severity not in allowed_severities:
+                    return jsonify({
+                        "error": "Invalid severity",
+                        "allowed_values": allowed_severities
+                    }), 400
+
+                incident["severity"] = severity
+
+            if "category" in data:
+                incident["category"] = str(data["category"]).strip().upper()
 
             if "status" in data:
                 incident["status"] = data["status"]
